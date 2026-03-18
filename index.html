@@ -8,8 +8,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/vuedraggable/4.1.0/vuedraggable.umd.min.js"></script>
 
     <script>
         tailwind.config = {
@@ -19,7 +17,8 @@
                         'sakura-pink': '#fff5f5',
                         'sakura-main': '#fecaca',
                         'sakura-dark': '#f472b6',
-                        'jp-gray': '#4a4a4a'
+                        'jp-gray': '#4a4a4a',
+                        'transit-blue': '#3b82f6'
                     }
                 }
             }
@@ -33,6 +32,7 @@
         .animate-slide-up { animation: slideUp 0.3s ease-out; }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
         .active-date { background-color: #f472b6 !important; color: white !important; box-shadow: 0 4px 12px rgba(244, 114, 182, 0.3); }
+        .transit-line { border-left: 2px dashed #cbd5e1; margin-left: 20px; }
     </style>
 </head>
 <body>
@@ -44,7 +44,7 @@
             <div class="absolute inset-0 bg-gradient-to-b from-black/40 to-transparent"></div>
             <div class="absolute top-10 left-6 text-white">
                 <h1 class="text-2xl font-bold tracking-[0.2em] drop-shadow-lg">2026櫻花樹下的約定</h1>
-                <p class="text-[10px] opacity-80 mt-1 uppercase tracking-widest">Kansai Cherry Blossom</p>
+                <p class="text-[10px] opacity-80 mt-1 uppercase tracking-widest">Kansai Cherry Blossom Trip</p>
             </div>
             
             <div class="absolute bottom-12 right-4 flex space-x-2 glass-tab p-1.5 rounded-2xl shadow-xl z-20">
@@ -71,16 +71,22 @@
 
                 <div v-for="day in schedule" :key="'content-'+day.date">
                     <div v-show="selectedDate === day.date">
-                        <div v-for="(element, index) in day.items" :key="element.id" class="mb-4">
-                            <div v-if="index > 0" class="flex items-center ml-8 my-3 text-gray-200 space-x-2">
-                                <div class="h-6 w-px border-l-2 border-dashed border-sakura-main"></div>
-                                <i class="fa-solid fa-person-walking text-[10px]"></i>
+                        
+                        <div v-for="(element, index) in day.items" :key="element.id">
+                            
+                            <div v-if="index > 0" class="transit-line my-1 py-4 flex items-center space-x-3 pl-6">
+                                <div class="flex items-center space-x-2 text-gray-400">
+                                    <i class="fa-solid fa-person-walking text-sm"></i>
+                                    <span class="text-[10px] font-medium">+</span>
+                                    <i class="fa-solid fa-train-subway text-sm"></i>
+                                    <span class="text-[10px] text-gray-400 ml-2">步行與大眾交通 (約 15-30 分鐘)</span>
+                                </div>
                             </div>
 
-                            <div v-if="element.category === '航班'" class="bg-gradient-to-br from-rose-400 to-pink-500 rounded-3xl p-5 text-white shadow-lg relative overflow-hidden">
+                            <div v-if="element.category === '航班'" class="bg-gradient-to-br from-rose-400 to-pink-500 rounded-3xl p-5 text-white shadow-lg relative overflow-hidden mb-4">
                                 <div class="flex justify-between items-center mb-4">
                                     <span class="text-[10px] font-bold tracking-widest bg-white/20 px-3 py-1 rounded-full">{{ element.flightNum }}</span>
-                                    <span class="text-[10px] opacity-80 uppercase tracking-tighter">{{ day.date }}</span>
+                                    <span class="text-[10px] opacity-80 uppercase">{{ day.date }}</span>
                                 </div>
                                 <div class="flex justify-between items-center px-2">
                                     <div class="text-center"><p class="text-2xl font-bold">{{ element.depTime }}</p><p class="text-[10px]">{{ element.depAirport }}</p></div>
@@ -89,17 +95,21 @@
                                 </div>
                             </div>
 
-                            <div v-else class="bg-white border border-gray-100 rounded-3xl p-4 shadow-sm flex items-start space-x-3">
+                            <div v-else class="bg-white border border-gray-100 rounded-3xl p-4 shadow-sm flex items-start space-x-3 mb-2"
+                                 :class="{'border-sakura-main ring-1 ring-sakura-pink': element.category === '住宿'}">
                                 <div class="flex-1">
                                     <div class="flex justify-between items-start">
-                                        <h4 class="font-bold text-gray-800">{{ element.time }} {{ element.name }}</h4>
+                                        <div class="flex items-center space-x-2">
+                                            <span v-if="element.category === '住宿'" class="text-sakura-dark"><i class="fa-solid fa-hotel text-xs"></i></span>
+                                            <h4 class="font-bold text-gray-800">{{ element.time }} {{ element.name }}</h4>
+                                        </div>
                                         <span class="text-[9px] px-2 py-0.5 rounded-full bg-sakura-pink text-sakura-dark border border-sakura-main/30">{{ element.category }}</span>
                                     </div>
                                     <p v-if="element.hours" class="text-[10px] text-gray-400 mt-1"><i class="fa-regular fa-clock mr-1"></i>{{ element.hours }}</p>
                                     <div v-if="element.note" class="bg-pink-50/50 rounded-xl p-2 mt-2 text-[11px] text-gray-600 leading-relaxed">{{ element.note }}</div>
                                     <div class="flex space-x-2 mt-3">
-                                        <button @click="openNav(element.name)" class="flex-1 py-2 bg-sakura-pink text-sakura-dark text-[11px] font-bold rounded-xl active:bg-sakura-main transition-colors"><i class="fa-solid fa-location-arrow mr-1"></i>導航</button>
-                                        <button @click="deleteItem(day, element.id)" class="px-3 py-2 text-gray-200 active:text-red-400"><i class="fa-solid fa-trash-can text-xs"></i></button>
+                                        <button @click="openNav(element.name)" class="flex-1 py-2 bg-sakura-pink text-sakura-dark text-[11px] font-bold rounded-xl active:bg-sakura-main"><i class="fa-solid fa-location-arrow mr-1"></i>導航</button>
+                                        <button v-if="element.category !== '住宿' || index === 0" @click="deleteItem(day, element.id)" class="px-3 py-2 text-gray-200 active:text-red-400"><i class="fa-solid fa-trash-can text-xs"></i></button>
                                     </div>
                                 </div>
                             </div>
@@ -118,24 +128,25 @@
                 </div>
                 <div v-for="h in hotels" class="bg-white border border-gray-100 rounded-3xl p-4 shadow-sm">
                     <p class="font-bold text-gray-800">{{ h.name }}</p>
-                    <p class="text-[11px] text-gray-500 mt-1">{{ h.address }}</p>
-                    <button @click="openNav(h.name)" class="w-full mt-3 py-2 border border-sakura-main/50 text-sakura-dark rounded-xl text-[11px] font-bold">查看地圖</button>
+                    <p class="text-[11px] text-gray-500 mt-1 leading-relaxed"><i class="fa-solid fa-map-pin mr-2 text-sakura-main"></i>{{ h.address }}</p>
+                    <button @click="openNav(h.name)" class="w-full mt-3 py-3 border border-sakura-main/50 text-sakura-dark rounded-2xl text-[11px] font-bold">開啟 Google Maps</button>
                 </div>
             </section>
 
             <section v-show="currentTab === 'shopping'" class="pb-10">
                 <div class="grid grid-cols-2 gap-4">
-                    <div v-for="item in shoppingList" :key="item.id" class="bg-white rounded-3xl p-4 shadow-sm border border-gray-100 text-center">
+                    <div v-for="item in shoppingList" :key="item.id" class="bg-white rounded-3xl p-4 shadow-sm border border-gray-100 text-center relative">
                         <i class="fa-solid fa-bag-shopping text-sakura-main text-2xl mb-2"></i>
                         <p class="text-xs font-bold text-gray-700">{{ item.name }}</p>
-                        <button @click="removeShopping(item.id)" class="text-[10px] text-red-300 mt-2">移除</button>
+                        <button @click="removeShopping(item.id)" class="text-[10px] text-red-300 mt-2 hover:underline">移除</button>
                     </div>
                 </div>
+                <div v-if="shoppingList.length === 0" class="text-center py-20 text-gray-300 text-sm">點擊下方 + 新增購物清單</div>
             </section>
 
             <section v-show="currentTab === 'expenses'" class="pb-10">
-                <div class="bg-gray-800 rounded-[32px] p-6 text-white mb-6 shadow-xl relative overflow-hidden">
-                    <p class="text-[10px] opacity-60 tracking-widest">總支出 (JPY)</p>
+                <div class="bg-gray-800 rounded-[32px] p-6 text-white mb-6 shadow-xl">
+                    <p class="text-[10px] opacity-60 tracking-widest uppercase">總支出預估 (JPY)</p>
                     <div class="flex items-baseline space-x-2 mt-1">
                         <span class="text-3xl font-bold">¥ {{ totalExpenses }}</span>
                         <span class="text-xs opacity-50">≈ NT$ {{ Math.round(totalExpenses * 0.21) }}</span>
@@ -155,7 +166,7 @@
                         </div>
                         <div class="flex items-center space-x-3">
                             <p class="font-bold text-jp-gray">¥{{ exp.amount }}</p>
-                            <button @click="removeExpense(exp.id)" class="text-gray-200 active:text-red-400 p-2"><i class="fa-solid fa-trash-can text-xs"></i></button>
+                            <button @click="removeExpense(exp.id)" class="text-gray-200 p-2"><i class="fa-solid fa-trash-can text-xs"></i></button>
                         </div>
                     </div>
                 </div>
@@ -163,7 +174,7 @@
 
         </main>
 
-        <button @click="showAddModal = true" class="fixed bottom-8 right-6 w-14 h-14 bg-sakura-dark text-white rounded-full shadow-2xl flex items-center justify-center text-2xl z-50 transition-transform active:scale-90">
+        <button @click="showAddModal = true" class="fixed bottom-8 right-6 w-14 h-14 bg-sakura-dark text-white rounded-full shadow-2xl flex items-center justify-center text-2xl z-50 active:scale-90">
             <i class="fa-solid fa-plus"></i>
         </button>
 
@@ -183,6 +194,9 @@
                                 <option>現金</option><option>信用卡</option><option>Suica/IC卡</option><option>行動支付</option>
                             </select>
                         </div>
+                        <select v-model="newItem.category" class="w-full p-4 bg-gray-50 rounded-2xl border-none text-sm">
+                            <option>交通</option><option>飲食</option><option>住宿</option><option>購物</option><option>其他</option>
+                        </select>
                     </div>
 
                     <button @click="saveNewItem" class="w-full py-4 bg-sakura-dark text-white rounded-2xl font-bold text-lg mt-4 shadow-lg active:scale-95 transition-transform">儲存項目</button>
@@ -208,45 +222,47 @@
                     { id: 'expenses', icon: 'fa-solid fa-coins' }
                 ];
 
+                const hotelKobe = { name: "神戶廣場飯店 West", time: "飯店出發 / 抵達", category: "住宿" };
+                const hotelOsaka = { name: "Shinsaibashi Grand Hotel Osaka", time: "飯店出發 / 抵達", category: "住宿" };
+
                 const schedule = ref([
                     { date: '2026/03/19', weekday: 'Thu', dayNum: '19', items: [
                         { id: 1, category: '航班', flightNum: 'CI156', depAirport: 'TPE', arrAirport: 'KIX', depTime: '08:05', arrTime: '11:35' },
                         { id: 2, category: '交通', name: '神戶-關空海上高速船', time: '13:15', note: '抵達後前往港口' },
-                        { id: 3, category: '住宿', name: '神戶廣場飯店 West', time: '14:25' },
-                        { id: 4, category: '景點', name: '生田神社', time: '15:00' },
-                        { id: 5, category: '美食', name: '燒肉 嵐', time: '17:15' },
-                        { id: 6, category: '景點', name: '神戶臨海樂園', time: '19:36' }
+                        { id: 101, ...hotelKobe, time: "14:25" }
                     ]},
                     { date: '2026/03/20', weekday: 'Fri', dayNum: '20', items: [
+                        { id: 102, ...hotelKobe, time: "09:00" },
                         { id: 7, category: '景點', name: '姬路城', time: '10:15', note: '櫻花滿開預定' },
                         { id: 8, category: '景點', name: '好古園', time: '13:30' },
-                        { id: 9, category: '美食', name: '明石燒', time: '15:50' },
-                        { id: 10, category: '景點', name: '掬星台夜景', time: '18:15' }
+                        { id: 10, category: '景點', name: '掬星台夜景', time: '18:15' },
+                        { id: 103, ...hotelKobe, time: "21:00" }
                     ]},
                     { date: '2026/03/21', weekday: 'Sat', dayNum: '21', items: [
-                        { id: 11, category: '美食', name: 'Susuruka, Susuranka', time: '10:30' },
+                        { id: 104, ...hotelKobe, time: "09:00" },
                         { id: 12, category: '景點', name: '奈良公園', time: '12:00' },
                         { id: 13, category: '景點', name: '東大寺', time: '16:00' },
-                        { id: 14, category: '住宿', name: '心齋橋大飯店', time: '18:00' }
+                        { id: 105, ...hotelOsaka, time: "18:00" }
                     ]},
                     { date: '2026/03/22', weekday: 'Sun', dayNum: '22', items: [
-                        { id: 15, category: '景點', name: '住吉大社', time: '07:20' },
+                        { id: 106, ...hotelOsaka, time: "09:00" },
+                        { id: 15, category: '景點', name: '住吉大社', time: '09:40' },
                         { id: 16, category: '景點', name: '大阪城', time: '13:30' },
-                        { id: 17, category: '美食', name: '河豚料理 玄品', time: '18:30' }
+                        { id: 17, category: '美食', name: '河豚料理 玄品', time: '18:30' },
+                        { id: 107, ...hotelOsaka, time: "21:00" }
                     ]},
                     { date: '2026/03/23', weekday: 'Mon', dayNum: '23', items: [
-                        { id: 18, category: '美食', name: '黑門市場', time: '08:10' },
-                        { id: 19, category: '景點', name: '海遊館', time: '09:40' },
+                        { id: 108, ...hotelOsaka, time: "08:30" },
+                        { id: 19, category: '景點', name: '海遊館', time: '10:00' },
                         { id: 20, category: '航班', flightNum: 'CI173', depAirport: 'KIX', arrAirport: 'TPE', depTime: '19:00', arrTime: '21:15' }
                     ]}
                 ]);
 
                 const expenses = ref([
-                    { id: 101, category: '交通', name: '高速船', amount: 1880, method: '現金' },
-                    { id: 102, category: '飲食', name: '燒肉 嵐', amount: 8500, method: '信用卡' }
+                    { id: 201, category: '交通', name: '海上高速船', amount: 1880, method: '現金' }
                 ]);
 
-                const shoppingList = ref([{ id: 201, name: "SHIRO 香水" }]);
+                const shoppingList = ref([{ id: 301, name: "SHIRO 香水" }]);
 
                 const hotels = [
                     { name: "神戶廣場飯店 West", address: "兵庫県神戸市中央区元町通3丁目4-7" },
@@ -281,7 +297,7 @@
                 };
 
                 const getExpenseIcon = (cat) => {
-                    const map = { '交通': 'fa-solid fa-train', '飲食': 'fa-solid fa-utensils', '購物': 'fa-solid fa-bag-shopping' };
+                    const map = { '交通': 'fa-solid fa-train', '飲食': 'fa-solid fa-utensils', '購物': 'fa-solid fa-bag-shopping', '住宿': 'fa-solid fa-bed' };
                     return map[cat] || 'fa-solid fa-tag';
                 };
 

@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-Hant-TW">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>2026櫻花樹下的約定</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
@@ -12,7 +13,7 @@
         tailwind.config = {
             theme: {
                 extend: {
-                    colors: { 'sakura-pink': '#fff5f5', 'sakura-main': '#fecaca', 'sakura-dark': '#f472b6', 'jp-gray': '#4a4a4a' }
+                    colors: { 'sakura-pink': '#fff5f5', 'sakura-main': '#fecaca', 'sakura-dark': '#f472b6' }
                 }
             }
         }
@@ -22,102 +23,125 @@
         .rounded-header { border-radius: 40px 40px 0 0; margin-top: -40px; }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .glass-tab { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(8px); }
-        .animate-slide-up { animation: slideUp 0.3s ease-out; }
-        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-        .active-date { background-color: #f472b6 !important; color: white !important; box-shadow: 0 4px 12px rgba(244, 114, 182, 0.3); }
-        .transit-dot { width: 8px; height: 8px; border-radius: 50%; background: #e2e8f0; position: relative; left: -5px; }
-        .transit-line { border-left: 2px dashed #e2e8f0; margin-left: 20px; padding: 15px 0 15px 25px; }
+        .active-date { background-color: #f472b6 !important; color: white !important; }
+        .transit-line { border-left: 2px dashed #e2e8f0; margin-left: 20px; padding: 10px 0 10px 25px; }
     </style>
 </head>
 <body>
     <div id="app" class="max-w-md mx-auto min-h-screen relative shadow-2xl bg-sakura-pink pb-24">
         
-        <header class="relative w-full h-[220px] overflow-hidden">
-            <img src="https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&h=400&q=80" class="w-full h-full object-cover">
+        <header class="relative w-full h-[200px] overflow-hidden">
+            <img src="https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=1000&q=80" class="w-full h-full object-cover">
             <div class="absolute inset-0 bg-gradient-to-b from-black/40 to-transparent"></div>
-            <div class="absolute top-10 left-6 text-white">
-                <h1 class="text-2xl font-bold tracking-[0.2em] drop-shadow-lg">2026櫻花樹下的約定</h1>
-                <p class="text-[10px] opacity-80 mt-1 uppercase tracking-widest">Kansai Detailed Itinerary</p>
+            <div class="absolute top-8 left-6 text-white">
+                <h1 class="text-2xl font-bold tracking-widest">2026櫻花樹下的約定</h1>
+                <p class="text-[10px] opacity-80 uppercase">Spring Itinerary</p>
             </div>
             
-            <div class="absolute bottom-12 right-4 flex space-x-2 glass-tab p-1.5 rounded-2xl shadow-xl z-20">
+            <div class="absolute bottom-10 right-4 flex space-x-2 glass-tab p-1.5 rounded-2xl z-20">
                 <button v-for="tab in tabs" @click="currentTab = tab.id" 
-                        :class="{'bg-sakura-dark text-white shadow-md': currentTab === tab.id, 'text-gray-400': currentTab !== tab.id}" 
-                        class="w-10 h-10 rounded-xl transition-all flex items-center justify-center">
+                        :class="{'bg-sakura-dark text-white': currentTab === tab.id, 'text-gray-400': currentTab !== tab.id}" 
+                        class="w-10 h-10 rounded-xl flex items-center justify-center">
                     <i :class="tab.icon"></i>
                 </button>
             </div>
         </header>
 
-        <main class="relative z-10 bg-white rounded-header px-4 pt-8 min-h-[600px] shadow-[0_-10px_30px_rgba(0,0,0,0.05)]">
-            
+        <main class="relative z-10 bg-white rounded-header px-4 pt-8 min-h-[500px]">
             <section v-show="currentTab === 'itinerary'">
                 <div class="flex overflow-x-auto space-x-4 mb-6 pb-2 hide-scrollbar">
                     <button v-for="day in schedule" :key="day.date" @click="selectedDate = day.date"
-                            class="flex flex-col items-center min-w-[65px] p-2 rounded-2xl transition-all bg-gray-50"
+                            class="flex flex-col items-center min-w-[60px] p-2 rounded-2xl bg-gray-50"
                             :class="{'active-date': selectedDate === day.date}">
-                        <span class="text-[11px] uppercase font-bold opacity-70">{{ day.weekday }}</span>
-                        <span class="text-xl font-bold leading-tight">{{ day.dayNum }}</span>
+                        <span class="text-[10px] font-bold opacity-70">{{ day.weekday }}</span>
+                        <span class="text-lg font-bold">{{ day.dayNum }}</span>
                     </button>
                 </div>
 
-                <div v-for="day in schedule" :key="'day-'+day.date">
-                    <div v-show="selectedDate === day.date">
-                        <div v-for="(item, index) in day.items" :key="item.id">
-                            
-                            <div v-if="index > 0" class="transit-line">
-                                <div class="flex flex-col space-y-1">
-                                    <div class="flex items-center text-blue-500 font-bold text-[11px]">
-                                        <i class="fa-solid fa-train-subway mr-2"></i>
-                                        <span>{{ day.items[index-1].transitType || '大眾運輸' }}</span>
-                                        <span class="mx-2 text-gray-300">|</span>
-                                        <span>約 {{ day.items[index-1].duration || '--' }} 分鐘</span>
-                                        <span v-if="day.items[index-1].fare" class="ml-auto text-orange-500">¥{{ day.items[index-1].fare }}</span>
-                                    </div>
-                                    <p v-if="day.items[index-1].transitDetail" class="text-[10px] text-gray-400 leading-relaxed">
-                                        {{ day.items[index-1].transitDetail }}
-                                    </p>
-                                </div>
+                <div v-for="day in schedule" v-show="selectedDate === day.date">
+                    <div v-for="(item, index) in day.items" :key="index">
+                        <div v-if="index > 0" class="transit-line">
+                            <div class="text-blue-500 font-bold text-[11px] flex items-center">
+                                <i class="fa-solid fa-train-subway mr-2"></i>
+                                {{ day.items[index-1].transitType }} | {{ day.items[index-1].duration }} min
+                                <span v-if="day.items[index-1].fare" class="ml-auto text-orange-500">¥{{ day.items[index-1].fare }}</span>
                             </div>
+                            <p class="text-[10px] text-gray-400 mt-1">{{ day.items[index-1].transitDetail }}</p>
+                        </div>
 
-                            <div class="bg-white border border-gray-100 rounded-3xl p-4 shadow-sm relative"
-                                 :class="{'bg-rose-50/30 border-rose-100': item.category === '住宿'}">
-                                <div class="flex justify-between items-start">
-                                    <div class="flex items-center space-x-2">
-                                        <span class="text-xs font-black text-sakura-dark w-10">{{ item.time }}</span>
-                                        <h4 class="font-bold text-gray-800">{{ item.name }}</h4>
-                                    </div>
-                                    <span v-if="item.category" class="text-[9px] px-2 py-0.5 rounded-full bg-sakura-pink text-sakura-dark border border-sakura-main/30">{{ item.category }}</span>
+                        <div class="bg-white border border-gray-100 rounded-3xl p-4 shadow-sm mb-2"
+                             :class="{'bg-rose-50/50 border-rose-100': item.category === '住宿'}">
+                            <div class="flex justify-between items-center">
+                                <div class="flex items-center space-x-3">
+                                    <span class="text-xs font-black text-sakura-dark">{{ item.time }}</span>
+                                    <h4 class="font-bold text-gray-800">{{ item.name }}</h4>
                                 </div>
-                                <div v-if="item.note" class="mt-2 text-[11px] text-gray-500 bg-gray-50 p-2 rounded-xl border-l-2 border-sakura-main">
-                                    {{ item.note }}
-                                </div>
-                                <div class="flex mt-3 space-x-2">
-                                    <button @click="openNav(item.name)" class="flex-1 py-2 bg-sakura-pink text-sakura-dark text-[10px] font-bold rounded-xl active:bg-sakura-main"><i class="fa-solid fa-location-arrow mr-1"></i>導航</button>
-                                </div>
+                                <span v-if="item.category" class="text-[9px] px-2 py-0.5 rounded-full bg-sakura-pink text-sakura-dark">{{ item.category }}</span>
                             </div>
+                            <div v-if="item.note" class="mt-2 text-[10px] text-gray-500 border-l-2 border-sakura-main pl-2">{{ item.note }}</div>
+                            <button @click="openNav(item.name)" class="w-full mt-3 py-2 bg-sakura-pink text-sakura-dark text-[10px] font-bold rounded-xl">地圖導航</button>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <section v-show="currentTab === 'info'"><div class="p-4 text-center text-gray-400 text-sm">飯店通訊錄與匯率功能已就緒</div></section>
-            <section v-show="currentTab === 'shopping'"><div class="p-4 text-center text-gray-400 text-sm">購物清單同步中</div></section>
-            <section v-show="currentTab === 'expenses'">
-                <div class="bg-gray-800 rounded-[32px] p-6 text-white mb-6 shadow-xl text-center">
-                    <p class="text-[10px] opacity-60">預估總交通費</p>
-                    <div class="text-3xl font-bold mt-1">¥ 11,210</div>
-                </div>
-            </section>
+            <section v-show="currentTab === 'info'"><div class="p-10 text-center text-gray-400">資訊內容加載中...</div></section>
+            <section v-show="currentTab === 'shopping'"><div class="p-10 text-center text-gray-400">購物清單加載中...</div></section>
+            <section v-show="currentTab === 'expenses'"><div class="p-10 text-center text-gray-400">帳務統計加載中...</div></section>
         </main>
-
-        <button @click="showAddModal = true" class="fixed bottom-8 right-6 w-14 h-14 bg-sakura-dark text-white rounded-full shadow-2xl flex items-center justify-center text-2xl z-50 active:scale-90"><i class="fa-solid fa-plus"></i></button>
     </div>
 
     <script>
-        const { createApp, ref, computed } = Vue;
+        const { createApp, ref } = Vue;
         createApp({
             setup() {
                 const currentTab = ref('itinerary');
                 const selectedDate = ref('2026/03/19');
-                const tabs = [{ id: 'itinerary', icon: 'fa-solid fa-location-dot' },
+                const tabs = [
+                    { id: 'itinerary', icon: 'fa-solid fa-location-dot' },
+                    { id: 'info', icon: 'fa-solid fa-info' },
+                    { id: 'shopping', icon: 'fa-solid fa-basket-shopping' },
+                    { id: 'expenses', icon: 'fa-solid fa-coins' }
+                ];
+
+                const schedule = ref([
+                    { date: '2026/03/19', weekday: 'Thu', dayNum: '19', items: [
+                        { name: '關西國際機場', time: '11:35', transitType: '乘船', duration: '85', fare: '840', transitDetail: '搭乘接駁巴士至碼頭', note: '外籍遊客憑護照優惠' },
+                        { name: '神戶廣場飯店 West', time: '14:25', category: '住宿', transitType: '地鐵', duration: '20', fare: '340', transitDetail: '新交通港灣人工島線至三宮站', note: '寄放行李' },
+                        { name: '生田神社', time: '15:00', transitType: '步行', duration: '5', transitDetail: '周邊步行', note: '櫻花與御守' },
+                        { name: '神戶臨海樂園', time: '19:40', note: '神戶港夜景' }
+                    ]},
+                    { date: '2026/03/20', weekday: 'Fri', dayNum: '20', items: [
+                        { name: '神戶廣場飯店 West', time: '08:00', category: '住宿', transitType: 'JR', duration: '70', fare: '960', transitDetail: '搭乘山陽本線至姬路站' },
+                        { name: '姬路城', time: '10:15', transitType: '步行', duration: '20', note: '世界遺產櫻花' },
+                        { name: '好古園', time: '13:30', transitType: '步行', duration: '5' },
+                        { name: '掬星台', time: '18:15', transitType: '纜車', duration: '60', fare: '1290', transitDetail: '摩耶纜車', note: '日本三大夜景' },
+                        { name: '神戶廣場飯店 West', time: '20:00', category: '住宿' }
+                    ]},
+                    { date: '2026/03/21', weekday: 'Sat', dayNum: '21', items: [
+                        { name: '神戶廣場飯店 West', time: '08:00', category: '住宿', transitType: '近鐵特急', duration: '120', fare: '1720', transitDetail: '神戶三宮至近鐵奈良' },
+                        { name: '奈良公園', time: '12:00', transitType: '步行', duration: '10', note: '東大寺與小鹿' },
+                        { name: '大阪心齋橋大飯店', time: '18:00', category: '住宿', note: '換飯店日' }
+                    ]},
+                    { date: '2026/03/22', weekday: 'Sun', dayNum: '22', items: [
+                        { name: '大阪心齋橋大飯店', time: '07:00', category: '住宿', transitType: '地鐵', duration: '30', fare: '430', transitDetail: '南海本線' },
+                        { name: '住吉大社', time: '07:20', transitType: '地鐵', duration: '40', fare: '430', transitDetail: '谷町線' },
+                        { name: '大阪城', time: '13:30', note: '天守閣與櫻花林' },
+                        { name: '河豚料理 玄品', time: '18:30', note: '法善寺店預約' }
+                    ]},
+                    { date: '2026/03/23', weekday: 'Mon', dayNum: '23', items: [
+                        { name: '黑門市場', time: '08:10', transitType: '地鐵', duration: '30', fare: '290', transitDetail: '堺筋線至港區' },
+                        { name: '海遊館', time: '09:40', transitType: '巴士', duration: '60', fare: '1800', transitDetail: '天保山發車', note: '世界級水族館' },
+                        { name: '關西國際機場', time: '16:00', note: '19:00 航班返台' }
+                    ]}
+                ]);
+
+                return { 
+                    tabs, currentTab, selectedDate, schedule, 
+                    openNav: (q) => window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`, '_blank') 
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
